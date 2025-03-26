@@ -15,9 +15,7 @@ GEONAMES_API_URL = "http://api.geonames.org/timezoneJSON?formatted=true"
 
 @st.cache_data
 def get_geodata(address):
-    dotenv.load_dotenv()
-
-    params = {'address': address, 'key': os.getenv('GOOGLE_MAPS_API')}
+    params = {'address': address, 'key': st.secrets["GoogleMapsAPI_key"]}
 
     # Do the request and get the response data
     req = requests.get(GOOGLE_MAPS_API_URL, params=params)
@@ -38,7 +36,7 @@ def get_geodata(address):
 def get_timezone(lat, lng):
     dotenv.load_dotenv()
 
-    params = {'lat': lat, 'lng': lng, 'username': os.getenv('GEONAMES_USERNAME')}
+    params = {'lat': lat, 'lng': lng, 'username': st.secrets["GeoNamesAPI_user"]}
     req = requests.get(GEONAMES_API_URL, params=params)
     res = req.json()
 
