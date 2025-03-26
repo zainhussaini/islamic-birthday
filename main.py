@@ -2,12 +2,10 @@ import streamlit as st
 import salat
 import datetime as dt
 import requests
-import os
 import pytz
 import hijridate
 from bisect import bisect
 import inflect
-import dotenv
 
 GOOGLE_MAPS_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 GEONAMES_API_URL = "http://api.geonames.org/timezoneJSON?formatted=true"
@@ -34,8 +32,6 @@ def get_geodata(address):
 
 @st.cache_data
 def get_timezone(lat, lng):
-    dotenv.load_dotenv()
-
     params = {'lat': lat, 'lng': lng, 'username': st.secrets["GeoNamesAPI_user"]}
     req = requests.get(GEONAMES_API_URL, params=params)
     res = req.json()
