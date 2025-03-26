@@ -19,6 +19,9 @@ def get_geodata(address):
     req = requests.get(GOOGLE_MAPS_API_URL, params=params)
     res = req.json()
 
+    if 'results' not in res or len(res['results']) == 0:
+        raise Exception("Result is not valid:", res)
+
     # Use the first result
     result = res['results'][0]
 
@@ -40,7 +43,15 @@ def get_timezone(lat, lng):
     req = requests.get(GEONAMES_API_URL, params=params)
     res = req.json()
 
+    if 'timezoneId' not in res:
+        raise Exception("Result is not valid:", res)
+
     return res['timezoneId']
+
+
+def get_current_time(timezone):
+    time = dt.datetime.now(pytz.UTC)
+    return time.astimezone(timezone)
 
 
 def get_before_and_after_prayer(date, lng, lat):
@@ -115,8 +126,6 @@ def generate_message(input_datetime, geodata):
 
 if __name__ == "__main__":
 
-    st.text(st.secrets)
-
     address = st.text_input("Enter location (will search on Google Maps)",
                             "1600 amphitheatre parkway mountain view")
     geodata = get_geodata(address)
@@ -127,9 +136,10 @@ if __name__ == "__main__":
     with col1:
         date = st.date_input("Date")
     with col2:
-        time = st.time_input("Time (24 hour)")
+        current_time = get_current_time(pytz.timezone(timezone_name))
+        time = st.time_input("Time (24 hour)", current_time)
     with col3:
-        timezone = st.selectbox("Timezone",
+        timezone = st.selectbox("Timezone (from location)",
                                 pytz.all_timezones,
                                 pytz.all_timezones.index(timezone_name),
                                 disabled=True)
@@ -142,4 +152,13 @@ if __name__ == "__main__":
                                  tzinfo=pytz.timezone(timezone))
 
     message = generate_message(input_datetime, geodata)
-    st.markdown("#### " + message)
+    st.markdown("""
+    <style>
+    .big-font {
+        font-size:32px !important;
+    }
+    </style>
+    """,
+                unsafe_allow_html=True)
+
+    st.markdown(f'<p class="big-font">{message}</p>', unsafe_allow_html=True)
