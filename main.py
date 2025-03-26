@@ -10,6 +10,11 @@ import inflect
 GOOGLE_MAPS_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 GEONAMES_API_URL = "http://api.geonames.org/timezoneJSON?formatted=true"
 
+# The date range supported by converter is limited to the period from the
+# beginning of 1343 AH (1 August 1924 CE) to the end of 1500 AH (16 November 2077 CE).
+HIJRIDATE_MIN = dt.date(1924, 8, 1)
+HIJRIDATE_MAX = dt.date(2077, 11, 16)
+
 
 @st.cache_data
 def get_geodata(address):
@@ -134,7 +139,9 @@ if __name__ == "__main__":
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        date = st.date_input("Date")
+        date = st.date_input("Date",
+                             min_value=HIJRIDATE_MIN,
+                             max_value=HIJRIDATE_MAX)
     with col2:
         current_time = get_current_time(pytz.timezone(timezone_name))
         time = st.time_input("Time (24 hour)", current_time)
@@ -143,6 +150,7 @@ if __name__ == "__main__":
                                 pytz.all_timezones,
                                 pytz.all_timezones.index(timezone_name),
                                 disabled=True)
+
     input_datetime = dt.datetime(date.year,
                                  date.month,
                                  date.day,
