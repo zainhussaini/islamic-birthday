@@ -1,0 +1,4 @@
+salat
+hijridate
+inflect
+dotenv
