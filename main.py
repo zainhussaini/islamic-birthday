@@ -32,7 +32,11 @@ def get_geodata(address):
 
 @st.cache_data
 def get_timezone(lat, lng):
-    params = {'lat': lat, 'lng': lng, 'username': st.secrets["GeoNamesAPI_user"]}
+    params = {
+        'lat': lat,
+        'lng': lng,
+        'username': st.secrets["GeoNamesAPI_user"]
+    }
     req = requests.get(GEONAMES_API_URL, params=params)
     res = req.json()
 
@@ -110,6 +114,8 @@ def generate_message(input_datetime, geodata):
 # DISPLAY
 
 if __name__ == "__main__":
+
+    st.text(st.secrets)
 
     address = st.text_input("Enter location (will search on Google Maps)",
                             "1600 amphitheatre parkway mountain view")
