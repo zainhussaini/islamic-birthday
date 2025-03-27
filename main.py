@@ -50,6 +50,9 @@ def get_timezone(lat, lng):
 
     if 'timezoneId' not in res:
         raise Exception("Result is not valid:", res)
+    if res['timezoneId'] not in pytz.all_timezones:
+        raise Exception("Internal error: unexpected time zone",
+                        res['timezoneId'])
 
     return res['timezoneId']
 
@@ -137,13 +140,14 @@ if __name__ == "__main__":
     timezone_name = get_timezone(geodata['lat'], geodata['lng'])
     st.markdown(f"Parsed as: **{geodata['address']}**")
 
+    current_time = get_current_time(pytz.timezone(timezone_name))
     col1, col2, col3 = st.columns(3)
     with col1:
         date = st.date_input("Date",
+                             current_time,
                              min_value=HIJRIDATE_MIN,
                              max_value=HIJRIDATE_MAX)
     with col2:
-        current_time = get_current_time(pytz.timezone(timezone_name))
         time = st.time_input("Time (24 hour)", current_time)
     with col3:
         timezone = st.selectbox("Timezone (from location)",
@@ -160,13 +164,4 @@ if __name__ == "__main__":
                                  tzinfo=pytz.timezone(timezone))
 
     message = generate_message(input_datetime, geodata)
-    st.markdown("""
-    <style>
-    .big-font {
-        font-size:32px !important;
-    }
-    </style>
-    """,
-                unsafe_allow_html=True)
-
-    st.markdown(f'<p class="big-font">{message}</p>', unsafe_allow_html=True)
+    st.write(f"**{message}**")
